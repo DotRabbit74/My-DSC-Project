@@ -118,7 +118,7 @@ if uploaded_file:
     image = Image.open(uploaded_file).convert('RGB')
 else:
     # 若無上傳，檢查 samples 資料夾
-    sample_dir = "samples"
+    sample_dir = "sample"
     if os.path.exists(sample_dir):
         # 取得資料夾內所有圖片
         sample_files = [f for f in os.listdir(sample_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
