@@ -3,7 +3,4 @@ __pycache__/
 dataset/
 raw-890/
 reference-890/
-multi_read_data.py
-train.py
-utils.py
 .vscode/
