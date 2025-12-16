@@ -9,7 +9,7 @@ import sys
 # --- 1. 頁面設定 ---
 st.set_page_config(
     page_title="Deep Scene Curve Demo",
-    page_icon="🌊",
+    
     layout="wide"
 )
 
@@ -19,7 +19,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 try:
     from model_dsc import Network
 except ImportError:
-    st.error("❌ 找不到 `model_dsc.py`。請確保此檔案已上傳至 GitHub 儲存庫的根目錄。")
+    st.error(" 找不到 `model_dsc.py`。請確保此檔案已上傳至 GitHub 儲存庫的根目錄。")
     st.stop()
 
 # --- 3. 設定執行裝置 ---
@@ -34,7 +34,7 @@ def load_model(weights_path, mode):
     try:
         model = Network(mode=mode)
     except TypeError:
-        st.error(f"❌ 模型初始化失敗：Network 類別似乎不支援 mode='{mode}' 參數。")
+        st.error(f" 模型初始化失敗：Network 類別似乎不支援 mode='{mode}' 參數。")
         return None
 
     try:
@@ -44,7 +44,7 @@ def load_model(weights_path, mode):
         else:
             model.load_state_dict(checkpoint)
     except Exception as e:
-        st.error(f"⚠️ 權重檔損毀或不相容 ({weights_path}): {e}")
+        st.error(f" 權重檔損毀或不相容 ({weights_path}): {e}")
         return None
 
     model.to(device)
@@ -87,9 +87,9 @@ def process_image(model, image):
     return output_img, end_time - start_time
 
 # --- 4. 側邊欄設定 ---
-st.sidebar.title("🌊 設定面板")
+st.sidebar.title("設定面板")
 st.sidebar.caption(f"Device: `{device}`")
-st.sidebar.info("說明：此應用程式比較原始 Sigmoid 方法與改良版 Softsign 方法在水下影像增強的表現。")
+st.sidebar.info("說明：此應用程式比較原始 Sigmoid 方法與嘗試版 Softsign 方法在水下影像增強的表現。")
 
 PATH_ORIGINAL = "weights/original.pth"
 PATH_SOFTSIGN = "weights/softsign.pth"
@@ -98,7 +98,7 @@ model_orig = load_model(PATH_ORIGINAL, mode='original')
 model_soft = load_model(PATH_SOFTSIGN, mode='softsign')
 
 # --- 5. 主畫面邏輯 ---
-st.title("🌊 Deep Scene Curve (DSC) - Model Comparison")
+st.title(" Deep Scene Curve (DSC) - Model Comparison")
 st.markdown("""
 本專案復刻並改良了 **Deep Scene Curve** 水下影像增強模型。
 使用 **Softsign** 曲線估計方法，以提升推論速度並改善梯度傳遞。
@@ -106,7 +106,7 @@ st.markdown("""
 
 # --- [關鍵修改] 圖片來源選擇邏輯 ---
 image = None
-uploaded_file = st.file_uploader("📂 上傳圖片 (或使用下方範例)", type=["jpg", "png", "jpeg"])
+uploaded_file = st.file_uploader(" 上傳圖片 ", type=["jpg", "png", "jpeg"])
 
 if uploaded_file:
     # 優先使用上傳的圖片
@@ -125,7 +125,7 @@ else:
             options = [placeholder_text] + sample_files
             
             selected_option = st.selectbox(
-                "🖼️ 沒有圖片嗎？選擇一張範例圖片來測試：",
+                " 或選擇一張範例圖片來測試：",
                 options,
                 index=0  # 預設選到 "--- 請選擇範例圖片 ---"
             )
@@ -138,7 +138,7 @@ else:
 # --- 6. 展示與推論 ---
 if image:
     # 這裡的邏輯只有在 image 被載入後才會執行
-    tab1, tab2 = st.tabs(["🔍 單一模型分析", "⚡ A/B 效能對決"])
+    tab1, tab2 = st.tabs([" 單一模型分析", " 效能對比"])
 
     with tab1:
         st.subheader("單一模型詳細測試")
@@ -156,17 +156,17 @@ if image:
                     res, t = process_image(target_model, image)
                 
                 st.image(res, caption=f"增強結果 ({option})", use_container_width=True)
-                st.success(f"⏱️ 推論時間: {t*1000:.2f} ms")
+                st.success(f" 推論時間: {t*1000:.2f} ms")
                 
                 if option == "Original (Sigmoid)":
                     st.latex(r"\mathcal{F}(x) = \frac{1}{1+e^{-(\alpha x + \beta)}}")
                 else:
                     st.latex(r"\mathcal{F}(x) = 0.5 \times \left( \frac{\alpha x + \beta}{1 + |\alpha x + \beta|} + 1 \right)")
             else:
-                st.warning(f"⚠️ 找不到權重檔，請確認 GitHub 上是否有 `{PATH_ORIGINAL}` 或 `{PATH_SOFTSIGN}`。")
+                st.warning(f" 找不到權重檔，請確認 GitHub 上是否有 `{PATH_ORIGINAL}` 或 `{PATH_SOFTSIGN}`。")
 
     with tab2:
-        st.subheader("⚡ 效能與畫質並列比較")
+        st.subheader(" 效能與畫質並列比較")
         
         c1, c2, c3 = st.columns(3)
         with c1:
@@ -203,4 +203,4 @@ if image:
 
 else:
     # 預設畫面：提示使用者動作
-    st.info("👋 請上傳圖片，或從上方選單選擇一張範例圖片以開始測試！")
+    st.info(" 請上傳圖片，或從上方選單選擇一張範例圖片以開始測試！")
