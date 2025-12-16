@@ -100,8 +100,8 @@ model_soft = load_model(PATH_SOFTSIGN, mode='softsign')
 # --- 5. 主畫面邏輯 ---
 st.title(" Deep Scene Curve (DSC) - Model Comparison")
 st.markdown("""
-本專案復刻並改良了 **Deep Scene Curve** 水下影像增強模型。
-使用 **Softsign** 曲線估計方法，以提升推論速度並改善梯度傳遞。
+本專題復刻 **Deep Scene Curve** 水下影像增強模型。
+除了原作者使用的**Sigmoid**，另外嘗試使用 **Softsign** 曲線估計方法，看是否能提升推論速度並改善梯度傳遞。
 """)
 
 # --- [關鍵修改] 圖片來源選擇邏輯 ---
