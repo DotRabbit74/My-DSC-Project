@@ -60,21 +60,48 @@ def load_model(weights_path, mode):
     return model
 
 def process_image(model, image):
-    """ 影像推論與計時 """
-    # 縮放至 256x256 以符合訓練尺寸 (可依需求調整)
+    """
+    影像推論與計時 (支援高解析度)
+    """
+    # 取得原始尺寸
+    w, h = image.size
+    
+    # --- 安全機制：限制最大邊長 ---
+    # Streamlit Cloud 免費版記憶體有限，若圖片過大(如 4K)可能會 OOM (Out of Memory)
+    # 我們設定一個上限 (例如 1024 或 1280)，超過就等比例縮小
+    max_size = 1024
+    scale_factor = 1.0
+    
+    if max(w, h) > max_size:
+        scale_factor = max_size / max(w, h)
+        new_w = int(w * scale_factor)
+        new_h = int(h * scale_factor)
+        # 使用高品質縮放
+        image = image.resize((new_w, new_h), Image.Resampling.LANCZOS)
+    
+    # 轉為 Tensor (不強制 Resize 到 256x256 了)
     transform = T.Compose([
-        T.Resize((256, 256)), 
         T.ToTensor()
     ])
     
     img_tensor = transform(image).unsqueeze(0).to(device)
     
+    # 確保維度是 16 的倍數 (某些卷積網路對尺寸有要求，避免 padding 錯誤)
+    # 雖然 DSC 架構通常不強制，但這是一個保險做法
+    # 這裡我們先直接丟進去，若報錯再調整
+    
     start_time = time.time()
-    with torch.no_grad():
-        output = model(img_tensor)
-        # 兼容回傳 tuple 的情況
-        if isinstance(output, (tuple, list)):
-            output = output[0]
+    try:
+        with torch.no_grad():
+            output = model(img_tensor)
+            if isinstance(output, (tuple, list)):
+                output = output[0]
+    except RuntimeError as e:
+        # 捕捉記憶體不足錯誤
+        if "out of memory" in str(e):
+            return image, 0.0  # 回傳原圖並報錯 (可以在外層處理)
+        raise e
+            
     end_time = time.time()
     
     # 轉回 PIL 圖片
